@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pandas as pd 
 import numpy as np
 import scipy.misc
@@ -8,21 +9,21 @@ import os
 
 from scipy.ndimage.interpolation import zoom
 
-!git clone https://github.com/fizyr/keras-retinanet
-os.chdir("keras-retinanet") 
-!python setup.py build_ext --inplace
+#!git clone https://github.com/fizyr/keras-retinanet
+os.chdir("/kaggle/working/keras-retinanet") 
+#!python setup.py build_ext --inplace
 
-DATA_DIR = "/kaggle/input/"
+DATA_DIR = "/home/mehul/kaggle/pneumonia-detection-2018/input"
 ROOT_DIR = "/kaggle/working/"
 # I converted training set DICOMs to PNGs, it should be part of the data environment
-train_pngs_dir = os.path.join(DATA_DIR, "rsna-pneu-train-png/stage_1_train_pngs/orig/")
-test_dicoms_dir  = os.path.join(DATA_DIR, "rsna-pneumonia-detection-challenge/stage_1_test_images/") 
+train_pngs_dir = os.path.join(DATA_DIR, "orig/")
+test_dicoms_dir  = os.path.join(DATA_DIR, "stage_1_test_images/") 
 
 # Create annotations for RetinaNet training
 import pandas as pd 
 
-bbox_info = pd.read_csv(os.path.join(DATA_DIR, "rsna-pneumonia-detection-challenge/stage_1_train_labels.csv"))
-detailed_class_info = pd.read_csv(os.path.join(DATA_DIR, "rsna-pneumonia-detection-challenge/stage_1_detailed_class_info.csv"))
+bbox_info = pd.read_csv(os.path.join(DATA_DIR, "stage_1_train_labels.csv"))
+detailed_class_info = pd.read_csv(os.path.join(DATA_DIR, "stage_1_detailed_class_info.csv"))
 detailed_class_info = detailed_class_info.drop_duplicates()
 
 # To get started, we'll train on positives only
@@ -64,10 +65,10 @@ classes_file.to_csv(os.path.join(ROOT_DIR, "classes.csv"), index=False, header=F
 # Epochs: 1
 # Steps per epoch: 1,000
 # Data augmentation
-!python /kaggle/working/keras-retinanet/keras_retinanet/bin/train.py --backbone "resnet50" --image-min-side 256 --image-max-side 256 --batch-size 1 --random-transform --epochs 1 --steps 1000 csv /kaggle/working/annotations.csv /kaggle/working/classes.csv
+#os.system("python /kaggle/working/keras-retinanet/keras_retinanet/bin/train.py --backbone resnet50 --image-min-side 256 --image-max-side 256 --batch-size 1 --random-transform --epochs 1 --steps 1000 csv /kaggle/working/annotations.csv /kaggle/working/classes.csv")
 
 # Convert model 
-!python /kaggle/working/keras-retinanet/keras_retinanet/bin/convert_model.py /kaggle/working/keras-retinanet/snapshots/resnet50_csv_01.h5 /kaggle/working/keras-retinanet/converted_model.h5 
+#os.system("python /kaggle/working/keras-retinanet/keras_retinanet/bin/convert_model.py /kaggle/working/keras-retinanet/snapshots/resnet50_csv_01.h5 /kaggle/working/keras-retinanet/converted_model.h5")
 
 # Load converted model
 from keras_retinanet.models import load_model 
@@ -98,7 +99,7 @@ for i, dcm_file in enumerate(test_dicoms):
         img[..., channel] = arr 
     # Resize 
     # Change image size if necessary!
-    scale_factor = 256. / img.shape[0]
+    scale_factor = 512. / img.shape[0]
     img = zoom(img, [scale_factor, scale_factor, 1], order=1, prefilter=False)
     # Preprocess with ImageNet mean subtraction
     img = preprocess_input(img) 
@@ -137,7 +138,7 @@ test_pred_df.head()
 # Generate submission
 
 # Set box threshold for inclusion
-threshold = 0.35
+threshold = 0.95
 
 list_of_pids = [] 
 list_of_preds = [] 
@@ -157,4 +158,14 @@ positives = pd.DataFrame({"patientId": list_of_pids,
 negatives = pd.DataFrame({"patientId": list(set(test_patient_ids) - set(list_of_pids)), 
                           "PredictionString": [""] * (len(test_patient_ids)-len(list_of_pids))})
 
-submission = positives.append(negatives) 
+submission = positives.append(negatives)
+#print(submission)
+#submission.to_csv('subi2.csv')
+submission.to_csv("/home/mehul/kaggle/pneumonia-detection-2018/rsna18-retinanet-starter/sub.txt",index=False)
+#print(fp)
+#fp.writelines("test")
+#fp.close()
+#print("close")
+#for item in submission:
+#    fp.writelines(item)
+
