@@ -138,7 +138,7 @@ test_pred_df.head()
 # Generate submission
 
 # Set box threshold for inclusion
-threshold = 0.95
+threshold = 0.45
 
 list_of_pids = [] 
 list_of_preds = [] 
