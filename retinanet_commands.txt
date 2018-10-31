@@ -1,0 +1,3 @@
+cd /kaggle/working/keras-retinanet 
+keras_retinanet/bin/train.py --backbone "resnet50" --image-min-side 256 --image-max-side 256 --batch-size 1 --random-transform --epochs 1 --steps 1000 csv /kaggle/working/annotations.csv /kaggle/working/classes.csv
+keras_retinanet/bin/convert_model.py /kaggle/working/keras-retinanet/snapshots/resnet50_csv_40.h5 /kaggle/working/keras-retinanet/converted_model.h5 
