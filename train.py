@@ -17,7 +17,7 @@ DATA_DIR = "/home/mehul/kaggle/pneumonia-detection-2018/input"
 ROOT_DIR = "/kaggle/working/"
 # I converted training set DICOMs to PNGs, it should be part of the data environment
 train_pngs_dir = os.path.join(DATA_DIR, "orig/")
-test_dicoms_dir  = os.path.join(DATA_DIR, "stage_1_test_images/") 
+test_dicoms_dir  = os.path.join(DATA_DIR, "stage_2_test_images/") 
 
 # Create annotations for RetinaNet training
 import pandas as pd 
@@ -74,7 +74,7 @@ classes_file.to_csv(os.path.join(ROOT_DIR, "classes.csv"), index=False, header=F
 from keras_retinanet.models import load_model 
 
 retinanet = load_model(os.path.join(ROOT_DIR, "keras-retinanet/converted_model.h5"), 
-                       backbone_name="resnet50")
+                       backbone_name="resnet101")
                        
 # Preprocessing function 
 def preprocess_input(x):
@@ -161,7 +161,7 @@ negatives = pd.DataFrame({"patientId": list(set(test_patient_ids) - set(list_of_
 submission = positives.append(negatives)
 #print(submission)
 #submission.to_csv('subi2.csv')
-submission.to_csv("/home/mehul/kaggle/pneumonia-detection-2018/rsna18-retinanet-starter/sub.txt",index=False)
+submission.to_csv("/home/mehul/kaggle/pneumonia-detection-2018/rsna18-retinanet-starter/stage2.txt",index=False)
 #print(fp)
 #fp.writelines("test")
 #fp.close()
